@@ -209,7 +209,7 @@ document.addEventListener('keydown', e => {
   if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return;
   e.preventDefault();
   const t = Math.min(Math.max(activeIndex + (e.key === 'ArrowDown' ? 1 : -1), 0), feed.children.length - 1);
-    feed.children[t].scrollIntoView({ behavior: 'smooth' });
+  feed.children[t].scrollIntoView({ behavior: 'smooth' });
 });
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
 
