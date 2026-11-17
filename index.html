@@ -24,6 +24,9 @@
       </button>
     </form>
     <div class="top-right">
+      <button id="btnAbout" class="icon-btn" title="Tentang Lemper">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 11v6M12 8h.01"/></svg>
+      </button>
       <button id="btnAccount" class="icon-btn" title="Akun">
         <svg viewBox="0 0 24 24" width="26" height="26" fill="#fff"><circle cx="12" cy="8.5" r="4.2"/><path d="M4 21c0-4.4 3.6-7.5 8-7.5s8 3.1 8 7.5z"/></svg>
       </button>
@@ -67,6 +70,47 @@
         <a id="pSource" class="p-link" target="_blank" rel="noopener">Lihat lisensi →</a>
       </div>
       <div id="pDesc" class="p-desc">—</div>
+    <div class="player-actions">
+      <button id="btnLike" class="p-act">
+        <svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor"><path d="M12 21s-8.6-5.3-11.3-10.6C-.3 5.8 3.4 2.7 7.4 2.7c2.3 0 3.9 1.2 4.6 3.1 0.7-1.9 2.3-3.1 4.6-3.1 4 0 7.7 3.1 6.7 7.7C20.6 15.7 12 21 12 21z"/></svg>
+        <span id="likeLabel">Suka</span>
+      </button>
+      <button id="btnDislike" class="p-act">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M12 3s8.6 5.3 11.3 10.6C24.3 18.2 20.6 21.3 16.6 21.3c-2.3 0-3.9-1.2-4.6-3.1-.7 1.9-2.3 3.1-4.6 3.1C3.4 21.3-.3 18.2.3 13.6 3.4 8.3 12 3 12 3z"/></svg>
+        <span>Tidak suka</span>
+      </button>
+      <button id="btnShareVideo" class="p-act">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M18 16.1c-.76 0-1.44.3-1.96.77L8.9 12.7c.05-.23.1-.47 .1-.7 0-.23-.05-.44-.1-.66l7.05-4.09A2.8 2.8 0 1 0 15 5.1c0 .23.04.49.1.72L8.1 9.9a2.8 2.8 0 1 0 0 4.2l7.05 4.09c-.05.23-.1.45-.1.68A2.8 2.8 0 1 0 18 16.1z"/></svg>
+        <span>Bagikan</span>
+      </button>
+      <button id="btnSaveVideo" class="p-act">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M17 3H7a2 2 0 0 0-2 2v16l7-4 7 4V5a2 2 0 0 0-2-2z"/></svg>
+        <span id="saveLabel">Simpan</span>
+      </button>
+    </div>
+    </div>
+  </div>
+
+  <!-- ABOUT OVERLAY -->
+  <div id="aboutPanel" class="about hidden">
+    <div class="about-card">
+      <button id="btnCloseAbout" class="icon-btn" title="Tutup">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M6 18L18 6"/></svg>
+      </button>
+      <div class="about-brand">
+        <svg viewBox="0 0 100 100" width="56" height="56"><rect x="2" y="18" width="96" height="64" rx="14" fill="#f6465d"/><polygon points="40,30 40,70 72,50" fill="#fff"/></svg>
+        <h2>Lemper</h2>
+        <p class="about-sub">Video teknologi, coding, AI &amp; sains — gratis &amp; legal</p>
+      </div>
+      <ul class="about-src">
+        <li><b>Internet Archive</b> — CC BY, CC BY-SA, Public Domain, dll</li>
+        <li><b>Wikimedia Commons</b> — CC BY, CC BY-SA, CC0, Public Domain</li>
+        <li><b>NASA</b> — Public Domain (images-assets.nasa.gov)</li>
+      </ul>
+      <div class="qr-frame">
+        <img id="shareQr" alt="QR Lemper" src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=https%3A%2F%2Frafieakila-cloud.github.io%2Flemper%2F">
+      </div>
+      <p class="about-foot">Scan QR → install di HP · lisensi setiap video tertera pada layar</p>
     </div>
   </div>
 
