@@ -78,10 +78,11 @@ gateSwitch.addEventListener('click', () => { setSession(null); gLogin.classList.
 document.getElementById('btnAccount').addEventListener('click', () => { if (confirm('Keluar?')) { setSession(null); showGate(); } });
 
 /* ============ FEED ============ */
-const BLOCKED = /porn|porno|sex(ual)?|nud(i|e|ity)|xxx|hentai|erotic|casino|gamble|gambl|judi|bet(ting)?|rummy|poker|strip|inces|milf|fetish|bondage|fetish/i;
-const DEFAULT_QUERY = 'cartoon animation';
-const FALLBACKS = ['science animation','timelapse nature','AI animation','educational animation'];
+const BLOCKED = /porn|porno|sex(ual)?|nud(i|e|ity)|xxx|hentai|erotic|casino|gamble|gambl|judi|bet(ting)?|rummy|poker|strip|inces|milf|fetish|bondage|fetish|cartoon|animation|animasi|anime/i;
+const DEFAULT_QUERY = 'AI';
+const FALLBACKS = ['artificial intelligence', 'coding', 'technology', 'science'];
 let currentQuery = DEFAULT_QUERY;
+let unmuted = false;   // start muted? false = try unmuted; Chrome blocks autoplay audio until gesture
 
 let items = [];
 const seen = new Set();
@@ -177,6 +178,7 @@ function activateSlide(i) {
 }
 
 /* ============ ACTIONS ============ */
+const btnMute = document.getElementById('btnMute');
 const btnLike = document.getElementById('btnLike');
 const btnSave = document.getElementById('btnSave');
 const btnShare = document.getElementById('btnShare');
@@ -190,6 +192,17 @@ function updateActionState() {
   likeCount.textContent = likes.has(url) ? '1' : '0';
   saveLabel.textContent = saves.has(url) ? 'Tersimpan' : 'Simpan';
 }
+btnMute.addEventListener('click', () => {
+  unmuted = !unmuted;
+  const slide = feed.children[activeIndex];
+  if (slide) {
+    const v = slide.querySelector('video');
+    v.muted = !unmuted;
+    if (!v.paused) v.play().catch(() => { v.muted = true; showToast('Suara diblokir — coba tap video langsung'); });
+  }
+  showToast(unmuted ? 'Suara: ON (tap video sekiranya browser blok)' : 'Suara: OFF');
+});
+
 btnLike.addEventListener('click', () => {
   const url = currentUrl(); if (!url) return;
   likes.has(url) ? likes.delete(url) : likes.add(url);
@@ -213,7 +226,11 @@ document.addEventListener('keydown', e => {
 });
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
 
-/* start */
+  $$('#cats .chip').forEach(c => c.addEventListener('click', () => {
+    $$('#cats .chip').forEach(x => x.classList.toggle('active', x === c));
+    currentQuery = c.dataset.cat;
+    loadFeed(true);
+  }));
 const u = session();
 if (u && loadAccounts().find(a => a.name === u.name)) { likes = loadSet(ACC_LIKES + u.name); saves = loadSet(ACC_SAVES + u.name); hideGate(); loadFeed(true); }
 else showGate();
