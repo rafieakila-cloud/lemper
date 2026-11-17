@@ -2,52 +2,80 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
-<meta name="theme-color" content="#000000">
-<meta name="description" content="Lemper — shorts video dari Wikimedia Commons: AI, coding, sains, teknologi. Legal & tanpa konten dewasa/judi.">
-<title>Lemper</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f0f0f">
+<meta name="description" content="Lemper — video teknologi/AI/coding/sains legal dari Internet Archive (CC/Public Domain). Lisensi ditampilkan lengkap.">
+<title>Lemper — Tech &amp; AI Video</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
-<link rel="apple-touch-icon" href="icons/icon-192.png">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <!-- TOP BAR (YouTube style) -->
   <header id="topbar">
-    <div class="brand">
-      <svg viewBox="0 0 100 100" width="28" height="28" class="brand-ic"><circle cx="50" cy="50" r="46" fill="#f6465d"/><circle cx="36" cy="43" r="10" fill="#fff"/><circle cx="64" cy="43" r="10" fill="#fff"/><circle cx="36" cy="43" r="3.5" fill="#000"/><circle cx="64" cy="43" r="3.5" fill="#000"/><path d="M34 63c9 6 22 6 32 0" stroke="#000" stroke-width="5" fill="none" stroke-linecap="round"/></svg>
-      <span class="brand-text">Lemper</span>
+    <div class="logo">
+      <svg viewBox="0 0 100 100" width="28" height="28"><rect x="2" y="18" width="96" height="64" rx="14" fill="#f6465d"/><polygon points="40,30 40,70 72,50" fill="#fff"/></svg>
+      <span>Lemper</span>
     </div>
+    <form id="searchForm" class="searchbar">
+      <input id="q" type="search" placeholder="Cari AI, coding, sains, teknologi…" autocomplete="off">
+      <button type="submit" class="s-btn" aria-label="Cari">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="#fff"><path d="M15.5 14h-.79l-.28-.27a6.5 6.5 0 1 0-1.39 1.39l.27.27v.8l5 5 1.5-1.5 5-5z"/></svg>
+      </button>
+    </form>
     <div class="top-right">
-      <button id="btnGateAccount" class="icon-btn" title="Akun">
+      <button id="btnAccount" class="icon-btn" title="Akun">
         <svg viewBox="0 0 24 24" width="26" height="26" fill="#fff"><circle cx="12" cy="8.5" r="4.2"/><path d="M4 21c0-4.4 3.6-7.5 8-7.5s8 3.1 8 7.5z"/></svg>
       </button>
     </div>
   </header>
 
-  <main id="feed"></main>
-  <div id="emptyState" class="hidden"><div class="empty-inner"><svg viewBox="0 0 100 100" width="72" height="72"><circle cx="50" cy="50" r="46" fill="#f6465d"/><circle cx="36" cy="43" r="10" fill="#fff"/><circle cx="64" cy="43" r="10" fill="#fff"/><circle cx="36" cy="43" r="3.5" fill="#000"/><circle cx="64" cy="43" r="3.5" fill="#000"/><path d="M34 63c9 6 22 6 32 0" stroke="#000" stroke-width="5" fill="none" stroke-linecap="round"/></svg><h2>Belum ada video</h2><p>Tarik kebawah atau muat ulang</p><button id="btnReload" class="reload-btn">Muat ulang</button></div></div>
+  <!-- CATEGORY CHIPS -->
+  <div id="chips" class="chips">
+    <button class="chip active" data-q="software">Coding</button>
+    <button class="chip" data-q="artificial intelligence">AI</button>
+    <button class="chip" data-q="machine learning">Machine Learning</button>
+    <button class="chip" data-q="technology">Teknologi</button>
+    <button class="chip" data-q="science">Sains</button>
+    <button class="chip" data-q="space">Antariksa</button>
+    <button class="chip" data-q="physics">Fisika</button>
+  </div>
 
-  <aside id="sideActions">
-    <button class="act" id="btnLike" aria-label="Suka">
-      <svg viewBox="0 0 24 24" width="34" height="34" fill="currentColor"><path d="M12 21s-8.6-5.3-11.3-10.6C-.3 5.8 3.4 2.7 7.4 2.7c2.3 0 3.9 1.2 4.6 3.1 0.7-1.9 2.3-3.1 4.6-3.1 4 0 7.7 3.1 6.7 7.7C20.6 15.7 12 21 12 21z"/></svg>
-      <span id="likeCount">0</span>
-    </button>
-    <button class="act" id="btnShare" aria-label="Bagikan">
-      <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor"><path d="M18 16.1c-.76 0-1.44.3-1.96.77L8.9 12.7c.05-.23.1-.47 .1-.7 0-.23-.05-.44-.1-.66l7.05-4.09A2.8 2.8 0 1 0 15 5.1c0 .23.04.49.1.72L8.1 9.9a2.8 2.8 0 1 0 0 4.2l7.05 4.09c-.05.23-.1.45-.1.68A2.8 2.8 0 1 0 18 16.1z"/></svg>
-      <span>Bagikan</span>
-    </button>
-    <button class="act" id="btnSave" aria-label="Simpan">
-      <svg viewBox="0 0 24 24" width="30" height="30" fill="currentColor"><path d="M17 3H7a2 2 0 0 0-2 2v16l7-4 7 4V5a2 2 0 0 0-2-2z"/></svg>
-      <span id="saveLabel">Simpan</span>
-    </button>
-  </aside>
+  <!-- FEED -->
+  <main id="feed" aria-label="Video feed"></main>
+  <div id="emptyState" class="hidden"><div class="empty-inner"><svg viewBox="0 0 100 100" width="64" height="64"><rect x="2" y="18" width="96" height="64" rx="14" fill="#f6465d"/></svg><h2>Belum ada video</h2><p>Coba kata kunci lain</p></div></div>
+
+  <!-- PLAYER PAGE (overlay fullscreen) -->
+  <div id="playerPage" class="player-page hidden">
+    <div class="player-topbar">
+      <button id="btnBack" class="icon-btn">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="#fff"><path d="M15 18l-6-6 6-6" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <span class="player-title" id="playerTitle">—</span>
+      <button id="btnReport" class="icon-btn" title="Laporkan konten">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><path d="M12 3l9 15H3l9-15zM12 10v5M12 17h.01"/></svg>
+      </button>
+    </div>
+    <div class="player-wrap">
+      <iframe id="playerFrame" allow="autoplay; fullscreen" allowfullscreen></iframe>
+    </div>
+    <div class="player-info">
+      <div class="p-title" id="pTitle">—</div>
+      <div class="p-meta">
+        <span id="pLicense" class="lic-pill">—</span>
+        <span id="pCreator" class="p-creator">—</span>
+        <a id="pSource" class="p-link" target="_blank" rel="noopener">Lihat lisensi →</a>
+      </div>
+      <div id="pDesc" class="p-desc">—</div>
+    </div>
+  </div>
 
   <!-- ACCOUNT GATE (wajib) -->
   <div id="accountGate" class="gate">
     <div class="gate-card">
-      <svg viewBox="0 0 100 100" width="74" height="74"><circle cx="50" cy="50" r="46" fill="#f6465d"/><circle cx="36" cy="43" r="10" fill="#fff"/><circle cx="64" cy="43" r="10" fill="#fff"/><circle cx="36" cy="43" r="3.5" fill="#000"/><circle cx="64" cy="43" r="3.5" fill="#000"/><path d="M34 63c9 6 22 6 32 0" stroke="#000" stroke-width="5" fill="none" stroke-linecap="round"/></svg>
+      <svg viewBox="0 0 100 100" width="72" height="72"><rect x="2" y="18" width="96" height="64" rx="14" fill="#f6465d"/><polygon points="40,30 40,70 72,50" fill="#fff"/></svg>
       <h1>Lemper</h1>
-      <p class="gate-sub">Video pendek sumber terbuka — AI · coding · sains · teknologi<br><span class="gate-note">Berlisensi CC / Public Domain</span></p>
+      <p class="gate-sub">Video teknologi, coding, AI, sains — dari Internet Archive<br><span class="gate-note">Lisensi CC / Public Domain — 100% legal, tertera lengkap</span></p>
       <div id="gateStepCreate">
         <input id="gateName" type="text" placeholder="Nama kamu" maxlength="32" autocomplete="off">
         <input id="gatePin" type="password" inputmode="numeric" pattern="[0-9]*" placeholder="PIN 4 digit" maxlength="4" autocomplete="off">
@@ -59,7 +87,7 @@
         <button id="gateLoginBtn" class="gate-btn">Masuk</button>
         <button id="gateSwitchBtn" class="gate-link">Bukan kamu? Ganti akun</button>
       </div>
-      <p class="gate-note-small">Video dari Wikimedia Commons. Akun tersimpan di HP ini saja (offline).</p>
+      <p class="gate-note-small">Akun tersimpan di HP ini saja (offline). Video dari Internet Archive (archive.org).</p>
     </div>
   </div>
 

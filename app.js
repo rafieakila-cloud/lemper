@@ -1,7 +1,15 @@
-// Lemper — Shorts dari Wikimedia Commons, CC/PD, tanpa konten dewasa/judi
+// Lemper — video teknologi/AI/coding/sains dari Internet Archive (CC/PD)
 const feed = document.getElementById('feed');
 const emptyState = document.getElementById('emptyState');
 const toastEl = document.getElementById('toast');
+const playerPage = document.getElementById('playerPage');
+const playerFrame = document.getElementById('playerFrame');
+const playerTitle = document.getElementById('playerTitle');
+const pTitle = document.getElementById('pTitle');
+const pLicense = document.getElementById('pLicense');
+const pCreator = document.getElementById('pCreator');
+const pSource = document.getElementById('pSource');
+const pDesc = document.getElementById('pDesc');
 
 /* ============ ACCOUNT (lokal per perangkat) ============ */
 const ACCOUNTS_KEY = 'lemper-accounts';
@@ -14,11 +22,10 @@ function saveAccounts(list) { localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(
 function session() { try { return JSON.parse(localStorage.getItem(SESSION_KEY) || 'null'); } catch { return null; } }
 function setSession(name) { name ? localStorage.setItem(SESSION_KEY, JSON.stringify({ name })) : localStorage.removeItem(SESSION_KEY); }
 function currentUser() { const s = session(); return s ? s.name : null; }
-function accountKey(prefix) { return prefix + (currentUser() || 'anon'); }
+function accountKey(p) { return p + (currentUser() || 'anon'); }
 function loadSet(key) { try { return new Set(JSON.parse(localStorage.getItem(key) || '[]')); } catch { return new Set(); } }
 function saveSet(key, s) { localStorage.setItem(key, JSON.stringify([...s])); }
-let likes = loadSet(accountKey(ACC_LIKES));
-let saves = loadSet(accountKey(ACC_SAVES));
+let likes = loadSet(accountKey(ACC_LIKES)), saves = loadSet(accountKey(ACC_SAVES));
 
 const gate = document.getElementById('accountGate');
 const gCreate = document.getElementById('gateStepCreate');
@@ -34,13 +41,11 @@ const gateWelcome = document.getElementById('gateWelcomeName');
 function showGate() {
   const accounts = loadAccounts();
   if (accounts.length) {
-    gCreate.classList.add('hidden');
-    gLogin.classList.remove('hidden');
+    gCreate.classList.add('hidden'); gLogin.classList.remove('hidden');
     gateWelcome.textContent = (session() && session().name) || accounts[0].name;
     gatePinLogin.value = '';
   } else {
-    gCreate.classList.remove('hidden');
-    gLogin.classList.add('hidden');
+    gCreate.classList.remove('hidden'); gLogin.classList.add('hidden');
     gateName.value = ''; gatePin.value = '';
   }
   gate.classList.remove('hidden');
@@ -48,22 +53,19 @@ function showGate() {
 function hideGate() { gate.classList.add('hidden'); }
 function afterLogin(name) {
   setSession(name);
-  likes = loadSet(ACC_LIKES + name);
-  saves = loadSet(ACC_SAVES + name);
+  likes = loadSet(ACC_LIKES + name); saves = loadSet(ACC_SAVES + name);
   hideGate();
   loadFeed(true);
 }
-
+gate.classList.add('gate');
 btnCreate.addEventListener('click', () => {
-  const name = gateName.value.trim();
-  const pin = gatePin.value.trim();
+  const name = gateName.value.trim(), pin = gatePin.value.trim();
   if (!name || name.length < 2) return showToast('nama terlalu pendek');
   if (!/^[0-9]{4}$/.test(pin)) return showToast('PIN harus 4 digit');
   const accounts = loadAccounts();
   if (accounts.find(a => a.name.toLowerCase() === name.toLowerCase())) return showToast('nama sudah dipakai');
   accounts.push({ name, pin, created: Date.now() });
-  saveAccounts(accounts);
-  afterLogin(name);
+  saveAccounts(accounts); afterLogin(name);
 });
 btnLogin.addEventListener('click', () => {
   const accounts = loadAccounts();
@@ -74,149 +76,138 @@ btnLogin.addEventListener('click', () => {
   if (acc.pin !== pin) return showToast('PIN salah');
   afterLogin(name);
 });
-gateSwitch.addEventListener('click', () => { setSession(null); gLogin.classList.add('hidden'); gCreate.classList.remove('hidden'); gateName.value=''; gatePin.value=''; });
-document.getElementById('btnGateAccount').addEventListener('click', () => { if (confirm('Keluar?')) { setSession(null); showGate(); } });
+gateSwitch.addEventListener('click', () => { setSession(null); gLogin.classList.add('hidden'); gCreate.classList.remove('hidden'); });
+document.getElementById('btnAccount').addEventListener('click', () => { if (confirm('Keluar?')) { setSession(null); showGate(); } });
+document.getElementById('btnBack').addEventListener('click', closePlayer);
+document.getElementById('btnReport').addEventListener('click', () => showToast('Terima kasih — ditandai untuk ditinjau'));
 
-/* ============ FEED ============ */
-const BLOCKED = /porn|porno|sex(ual)?|nud(i|e|ity)|xxx|hentai|erotic|casino|gamble|gambl|judi|bet(ting)?|rummy|poker|strip|inces|milf|fetish|bondage|fetish|cartoon|animation|animasi|anime/i;
-const DEFAULT_QUERY = 'AI';
-const FALLBACKS = ['artificial intelligence', 'coding', 'technology', 'science'];
-let currentQuery = DEFAULT_QUERY;
-let unmuted = false;   // start muted? false = try unmuted; Chrome blocks autoplay audio until gesture
-
-let items = [];
-const seen = new Set();
-let continueToken = null;
+/* ============ FEED (Internet Archive) ============ */
+const BLOCKED = /porn|porno|sex(ual)?|nud(e|ity)|xxx|hentai|erotic|casino|gamble|gambl|judi|bet(ting)?|strip|nude|wtf|drugs?/i;
+let currentQuery = 'software';
+let continuePage = 1;
+const PAGE_SIZE = 12;
 let loading = false;
-let activeIndex = -1;
 
-async function fetchPage(query, cont) {
-  const base = 'https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch=filetype:video ' +
-    encodeURIComponent(query) + '&gsrlimit=20&gsrnamespace=6&prop=videoinfo&viprop=url|size|width|height|duration|extmetadata&format=json&origin=*';
-  const url = cont ? base + '&gsroffset=' + cont : base;
+async function queryArchive(q, page) {
+  const subjectFilter = '(subject:software OR subject:technology OR subject:programming OR subject:computer OR subject:electronics OR subject:ai OR subject:"artificial intelligence" OR subject:"machine learning" OR subject:science OR subject:physics)';
+  const search = q.trim()
+    ? '(' + q.trim() + ') AND ' + subjectFilter
+    : subjectFilter;
+  const url =
+    'https://archive.org/advancedsearch.php?' +
+    'q=(' + encodeURIComponent(search) + ')+AND+mediatype%3Amovies+AND+licenseurl%3A%2A' +
+    '&fl[]=identifier,title,creator,licenseurl,medianame,publicdate,description' +
+    '&sort[]=downloads+desc&rows=' + PAGE_SIZE + '&page=' + (page || 1) +
+    '&output=json';
   const r = await fetch(url);
   if (!r.ok) throw new Error('HTTP ' + r.status);
   const j = await r.json();
-  const next = j.continue ? j.continue.gsroffset : null;
-  const pages = j && j.query && j.query.pages ? Object.values(j.query.pages) : [];
-  const out = pages.map(p => {
-    const vi = (p.videoinfo && p.videoinfo[0]) || {};
-    const meta = vi.extmetadata || {};
-    const artist = stripHtml(meta.Artist ? meta.Artist.value : '') || 'Commons';
-    const license = meta.LicenseShortName ? meta.LicenseShortName.value : 'CC';
-    const licenseUrl = (meta.LicenseUrl && meta.LicenseUrl.value) || 'https://creativecommons.org';
-    const descUrl = vi.descriptionurl || ('https://commons.wikimedia.org/wiki/' + encodeURIComponent(p.title || ''));
-    return {
-      title: (p.title || '').replace(/^File:/, ''),
-      url: vi.url, duration: vi.duration || 999, size: vi.size || Infinity,
-      artist, license, licenseUrl, descUrl
-    };
-  }).filter(v => v.url && v.duration <= 62 && v.size <= 60*1024*1024 && !seen.has(v.url) && /cc/i.test(v.license + '' + v.licenseUrl) && !BLOCKED.test(v.title));
-  return { items: out, next };
+  const docs = (j.response && j.response.docs) || [];
+  return docs.map(d => ({
+    identifier: d.identifier,
+    title: d.title || 'Tanpa judul',
+    creator: (d.creator && (Array.isArray(d.creator) ? d.creator[0] : d.creator)) || 'archive.org',
+    licenseurl: d.licenseurl || 'https://archive.org/about/terms',
+    description: (d.description && (Array.isArray(d.description) ? d.description[0] : d.description)) || ''
+  })).filter(d => !BLOCKED.test(d.title + ' ' + d.description));
 }
-function stripHtml(s) { const d = document.createElement('div'); d.innerHTML = s || ''; return d.textContent || ''; }
+function thumbUrl(id) { return 'https://archive.org/services/img/' + encodeURIComponent(id); }
+function embedUrl(id) { return 'https://archive.org/embed/' + encodeURIComponent(id) + '?autoplay=1&mute=1'; }
+function sourceUrl(id) { return 'https://archive.org/details/' + encodeURIComponent(id); }
+
+function renderCards(items) {
+  feed.innerHTML = items.map(it => `
+    <article class="card" data-id="${escapeHtml(it.identifier)}">
+      <img class="thumb" src="${escapeHtml(thumbUrl(it.identifier))}" alt="${escapeHtml(it.title)}" loading="lazy" onerror="this.style.visibility='hidden'">
+      <div class="card-info">
+        <div class="card-title">${escapeHtml(it.title)}</div>
+        <div class="card-creator">${escapeHtml(it.creator)}</div>
+        <div class="card-meta"><span class="lic-pill">${escapeHtml(shortLicense(it.licenseurl))}</span></div>
+      </div>
+    </article>`).join('');
+  feed.querySelectorAll('.card').forEach(c => c.addEventListener('click', () => openPlayer(c.dataset.id, items)));
+}
+function shortLicense(url) {
+  if (/creativecommons\.org\/licenses\/by-sa/i.test(url)) return 'CC BY-SA';
+  if (/creativecommons\.org\/licenses\/by\//i.test(url))  return 'CC BY';
+  if (/creativecommons\.org\/licenses\/by-nc/i.test(url)) return 'CC BY-NC';
+  if (/creativecommons\.org\/licenses\/zero|creativecommons\.org\/publicdomain/i.test(url)) return 'PD / CC0';
+  if (/fsf\.org|gnu\.org/i.test(url)) return 'Copyleft';
+  return 'Lihat lisensi';
+}
 function escapeHtml(s) { return String(s || '').replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c])); }
+function stripHtml(s) { const d = document.createElement('div'); d.innerHTML = s || ''; return d.textContent || ''; }
+
 function showToast(msg) {
-  toastEl.textContent = msg;
-  toastEl.classList.remove('hidden');
+  toastEl.textContent = msg; toastEl.classList.remove('hidden');
   clearTimeout(showToast._t);
   showToast._t = setTimeout(() => toastEl.classList.add('hidden'), 2200);
 }
+function showEmpty() { emptyState.classList.remove('hidden'); }
+function hideEmpty() { emptyState.classList.add('hidden'); }
 
 async function loadFeed(reset) {
   if (loading) return;
   loading = true;
-  if (reset) { items = []; seen.clear(); continueToken = null; activeIndex = -1; feed.innerHTML = ''; emptyState.classList.add('hidden'); }
+  if (reset) { continuePage = 1; feed.innerHTML = ''; hideEmpty(); }
   try {
-    const { items: fresh, next } = await fetchPage(currentQuery, continueToken);
-    fresh.forEach(v => seen.add(v.url));
-    items = items.concat(fresh);
-    continueToken = next;
-    if (!items.length) { const i = FALLBACKS.indexOf(currentQuery); const nx = FALLBACKS[i+1] || FALLBACKS[0]; if (currentQuery !== nx) { currentQuery = nx; loading = false; return loadFeed(true); } emptyState.classList.remove('hidden'); loading = false; return; }
-    appendSlides(items.length - fresh.length);
+    const items = await queryArchive(currentQuery, continuePage);
+    if (!items.length) { showEmpty(); loading = false; return; }
+    if (continuePage === 1) feed.innerHTML = '';
+    const html = items.map(it => cardHTML(it)).join('');
+    feed.insertAdjacentHTML('beforeend', html);
+    feed.querySelectorAll('.card').forEach(c => c.addEventListener('click', () => openPlayer(c.dataset.id, items)));
+    continuePage++;
     loading = false;
   } catch (e) { showToast('gagal memuat: ' + e.message); loading = false; }
 }
-
-function appendSlides(from) {
-  for (let i = from; i < items.length; i++) {
-    const v = items[i];
-    const slide = document.createElement('section');
-    slide.className = 'slide'; slide.dataset.index = i;
-    slide.innerHTML = `
-      <video src="${escapeHtml(v.url)}" playsinline muted loop preload="auto" webkit-playsinline></video>
-      <div class="scrim"></div>
-      <div class="caption">
-        <div class="cap-box">
-          <h3>${escapeHtml(v.title)}</h3>
-          <div class="byline">${escapeHtml(v.artist.slice(0, 60))} · <a href="${escapeHtml(v.descUrl)}" target="_blank" rel="noopener license">Commons</a></div>
-          <a class="lic-pill" href="${escapeHtml(v.licenseUrl)}" target="_blank" rel="noopener license">${escapeHtml(v.license)}</a>
-        </div>
-      </div>`;
-    feed.appendChild(slide);
-    const vid = slide.querySelector('video');
-    vid.addEventListener('error', () => { slide.remove(); if (feed.children.length < 4 && continueToken) loadFeed(false); });
-    io.observe(slide);
-  }
-  if (activeIndex === -1) activateSlide(0);
+function cardHTML(it) {
+  return `<article class="card" data-id="${escapeHtml(it.identifier)}">
+    <img class="thumb" src="${escapeHtml(thumbUrl(it.identifier))}" alt="${escapeHtml(it.title)}" loading="lazy" onerror="this.style.visibility='hidden'">
+    <div class="card-info">
+      <div class="card-title">${escapeHtml(it.title)}</div>
+      <div class="card-creator">${escapeHtml(it.creator)}</div>
+      <div class="card-meta"><span class="lic-pill">${escapeHtml(shortLicense(it.licenseurl))}</span></div>
+    </div>
+  </article>`;
 }
-
-const io = new IntersectionObserver((entries) => {
-  for (const e of entries) {
-    if (e.isIntersecting && e.intersectionRatio > 0.6) activateSlide(+e.target.dataset.index);
-    else { const v = e.target.querySelector('video'); if (v && !v.paused) v.pause(); }
-  }
-}, { root: feed, threshold: [0, 0.6] });
-
-function activateSlide(i) {
-  if (i === activeIndex) return;
-  activeIndex = i;
-  [...feed.children].forEach((s, j) => {
-    const v = s.querySelector('video');
-    if (j === i) v.play().catch(() => {}); else if (!v.paused) v.pause();
-  });
-  updateActionState();
-  if (i >= items.length - 3 && continueToken) loadFeed(false);
+async function openPlayer(id, items) {
+  const it = items ? items.find(x => x.identifier === id) : null;
+  if (!it) return;
+  playerPage.classList.remove('hidden');
+  playerTitle.textContent = it.title;
+  pTitle.textContent = it.title;
+  pCreator.textContent = 'oleh ' + it.creator;
+  pLicense.textContent = shortLicense(it.licenseurl);
+  pSource.href = it.licenseurl;
+  pDesc.textContent = stripHtml(it.description).slice(0, 1200);
+  playerFrame.src = embedUrl(id);
 }
+function closePlayer() { playerPage.classList.add('hidden'); playerFrame.src = ''; }
 
-/* ============ ACTIONS ============ */
-
-const btnLike = document.getElementById('btnLike');
-const btnSave = document.getElementById('btnSave');
-const btnShare = document.getElementById('btnShare');
-const likeCount = document.getElementById('likeCount');
-const saveLabel = document.getElementById('saveLabel');
-function currentUrl() { const s = feed.children[activeIndex]; return s ? s.querySelector('video').src : null; }
-function updateActionState() {
-  const url = currentUrl(); if (!url) return;
-  btnLike.classList.toggle('active', likes.has(url));
-  btnSave.classList.toggle('active', saves.has(url));
-  likeCount.textContent = likes.has(url) ? '1' : '0';
-  saveLabel.textContent = saves.has(url) ? 'Tersimpan' : 'Simpan';
-}
-btnLike.addEventListener('click', () => {
-  const url = currentUrl(); if (!url) return;
-  likes.has(url) ? likes.delete(url) : likes.add(url);
-  saveSet(ACC_LIKES + (currentUser()||'anon'), likes); updateActionState(); showToast(likes.has(url) ? 'disukai' : 'batal suka');
-});
-btnSave.addEventListener('click', () => {
-  const url = currentUrl(); if (!url) return;
-  saves.has(url) ? saves.delete(url) : saves.add(url);
-  saveSet(ACC_SAVES + (currentUser()||'anon'), saves); updateActionState(); showToast(saves.has(url) ? 'tersimpan' : 'batal simpan');
-});
-btnShare.addEventListener('click', async () => {
-  const v = items[activeIndex]; if (!v) return;
-  try { if (navigator.share) await navigator.share({ title: v.title, text: v.title + ' — via Lemper', url: v.descUrl }); else { await navigator.clipboard.writeText(v.descUrl); showToast('link disalin'); } } catch {}
-});
-document.getElementById('btnReload').addEventListener('click', () => loadFeed(true));
-document.addEventListener('keydown', e => {
-  if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return;
+/* ============ INPUT BAR / CHIPS ============ */
+const q = document.getElementById('q');
+const chips = document.querySelectorAll('.chip');
+document.getElementById('searchForm').addEventListener('submit', e => {
   e.preventDefault();
-  const t = Math.min(Math.max(activeIndex + (e.key === 'ArrowDown' ? 1 : -1), 0), feed.children.length - 1);
-  feed.children[t].scrollIntoView({ behavior: 'smooth' });
+  currentQuery = q.value.trim() || 'software';
+  chips.forEach(c => c.classList.remove('active'));
+  loadFeed(true);
 });
+chips.forEach(c => c.addEventListener('click', () => {
+  currentQuery = c.dataset.q; q.value = c.dataset.q;
+  chips.forEach(x => x.classList.toggle('active', x === c));
+  loadFeed(true);
+}));
+
+/* infinite scroll */
+feed.addEventListener('scroll', () => {
+  if (feed.scrollTop + feed.clientHeight > feed.scrollHeight - 300) loadFeed(false);
+});
+
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
 
+/* start */
 const u = session();
 if (u && loadAccounts().find(a => a.name === u.name)) { likes = loadSet(ACC_LIKES + u.name); saves = loadSet(ACC_SAVES + u.name); hideGate(); loadFeed(true); }
 else showGate();
