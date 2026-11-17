@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
 <meta name="theme-color" content="#000000">
-<meta name="description" content="Lemper — video shorts dari Wikimedia Commons, legal & aman (tanpa konten dewasa).">
+<meta name="description" content="Lemper — shorts video dari Wikimedia Commons: AI, coding, sains, teknologi. Legal & tanpa konten dewasa/judi.">
 <title>Lemper</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
@@ -12,41 +12,28 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <!-- TOP BAR -->
   <header id="topbar">
     <div class="brand">
-      <svg viewBox="0 0 100 100" width="30" height="30"><circle cx="50" cy="50" r="46" fill="#f6465d"/><circle cx="35" cy="42" r="11" fill="#fff"/><circle cx="65" cy="42" r="11" fill="#fff"/><circle cx="35" cy="42" r="4" fill="#000"/><circle cx="65" cy="42" r="4" fill="#000"/><path d="M34 62c10 7 22 7 32 0" stroke="#000" stroke-width="5" fill="none" stroke-linecap="round"/></svg>
-      <span>Lemper</span>
-    </div>
-    <div id="cats" class="cats">
-      <button class="chip active" data-cat="AI">AI</button>
-      <button class="chip" data-cat="coding">Coding</button>
-      <button class="chip" data-cat="technology">Teknologi</button>
-      <button class="chip" data-cat="science">Sains</button>
-      <button class="chip" data-cat="space">Antariksa</button>
+      <svg viewBox="0 0 100 100" width="28" height="28" class="brand-ic"><circle cx="50" cy="50" r="46" fill="#f6465d"/><circle cx="36" cy="43" r="10" fill="#fff"/><circle cx="64" cy="43" r="10" fill="#fff"/><circle cx="36" cy="43" r="3.5" fill="#000"/><circle cx="64" cy="43" r="3.5" fill="#000"/><path d="M34 63c9 6 22 6 32 0" stroke="#000" stroke-width="5" fill="none" stroke-linecap="round"/></svg>
+      <span class="brand-text">Lemper</span>
     </div>
     <div class="top-right">
-      <button id="btnMute" class="icon-btn" title="Suara">
-        <svg id="muteIcon" viewBox="0 0 24 24" width="26" height="26" fill="#fff"><path d="M3 9v6h4l5 5V4L7 9H3z"/><path d="M16 8.5v7" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M19 5v14" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
-      </button>
-      <button id="btnAccount" class="icon-btn" title="Akun">
+      <button id="btnGateAccount" class="icon-btn" title="Akun">
         <svg viewBox="0 0 24 24" width="26" height="26" fill="#fff"><circle cx="12" cy="8.5" r="4.2"/><path d="M4 21c0-4.4 3.6-7.5 8-7.5s8 3.1 8 7.5z"/></svg>
       </button>
     </div>
   </header>
 
-  <!-- FEED -->
-  <main id="feed" aria-label="Feed video"></main>
-  <div id="emptyState" class="hidden"><div class="empty-inner"><svg viewBox="0 0 100 100" width="70" height="70"><circle cx="50" cy="50" r="46" fill="#f6465d"/></svg><h2>Lemper habis</h2><p>Tarik untuk memuat lebih banyak</p><button id="btnReload">Muat ulang</button></div></div>
+  <main id="feed"></main>
+  <div id="emptyState" class="hidden"><div class="empty-inner"><svg viewBox="0 0 100 100" width="72" height="72"><circle cx="50" cy="50" r="46" fill="#f6465d"/><circle cx="36" cy="43" r="10" fill="#fff"/><circle cx="64" cy="43" r="10" fill="#fff"/><circle cx="36" cy="43" r="3.5" fill="#000"/><circle cx="64" cy="43" r="3.5" fill="#000"/><path d="M34 63c9 6 22 6 32 0" stroke="#000" stroke-width="5" fill="none" stroke-linecap="round"/></svg><h2>Belum ada video</h2><p>Tarik kebawah atau muat ulang</p><button id="btnReload" class="reload-btn">Muat ulang</button></div></div>
 
-  <!-- SIDE ACTIONS -->
   <aside id="sideActions">
     <button class="act" id="btnLike" aria-label="Suka">
       <svg viewBox="0 0 24 24" width="34" height="34" fill="currentColor"><path d="M12 21s-8.6-5.3-11.3-10.6C-.3 5.8 3.4 2.7 7.4 2.7c2.3 0 3.9 1.2 4.6 3.1 0.7-1.9 2.3-3.1 4.6-3.1 4 0 7.7 3.1 6.7 7.7C20.6 15.7 12 21 12 21z"/></svg>
       <span id="likeCount">0</span>
     </button>
     <button class="act" id="btnShare" aria-label="Bagikan">
-      <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor"><path d="M18 16.1c-.76 0-1.44.3-1.96.77L8.9 12.7c.05-.23.1-.47.1-.7 0-.23-.05-.44-.1-.66l7.05-4.09A2.8 2.8 0 1 0 15 5.1c0 .23.04.49.1.72L8.1 9.9a2.8 2.8 0 1 0 0 4.2l7.05 4.09c-.05.23-.1.45-.1.68A2.8 2.8 0 1 0 18 16.1z"/></svg>
+      <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor"><path d="M18 16.1c-.76 0-1.44.3-1.96.77L8.9 12.7c.05-.23.1-.47 .1-.7 0-.23-.05-.44-.1-.66l7.05-4.09A2.8 2.8 0 1 0 15 5.1c0 .23.04.49.1.72L8.1 9.9a2.8 2.8 0 1 0 0 4.2l7.05 4.09c-.05.23-.1.45-.1.68A2.8 2.8 0 1 0 18 16.1z"/></svg>
       <span>Bagikan</span>
     </button>
     <button class="act" id="btnSave" aria-label="Simpan">
@@ -58,9 +45,9 @@
   <!-- ACCOUNT GATE (wajib) -->
   <div id="accountGate" class="gate">
     <div class="gate-card">
-      <svg viewBox="0 0 100 100" width="72" height="72"><circle cx="50" cy="50" r="46" fill="#f6465d"/><circle cx="35" cy="42" r="11" fill="#fff"/><circle cx="65" cy="42" r="11" fill="#fff"/><circle cx="35" cy="42" r="4" fill="#000"/><circle cx="65" cy="42" r="4" fill="#000"/><path d="M34 62c10 7 22 7 32 0" stroke="#000" stroke-width="5" fill="none" stroke-linecap="round"/></svg>
+      <svg viewBox="0 0 100 100" width="74" height="74"><circle cx="50" cy="50" r="46" fill="#f6465d"/><circle cx="36" cy="43" r="10" fill="#fff"/><circle cx="64" cy="43" r="10" fill="#fff"/><circle cx="36" cy="43" r="3.5" fill="#000"/><circle cx="64" cy="43" r="3.5" fill="#000"/><path d="M34 63c9 6 22 6 32 0" stroke="#000" stroke-width="5" fill="none" stroke-linecap="round"/></svg>
       <h1>Lemper</h1>
-      <p class="gate-sub">Video shorts dari sumber terbuka — gratis &amp; aman</p>
+      <p class="gate-sub">Video pendek sumber terbuka — AI · coding · sains · teknologi<br><span class="gate-note">Berlisensi CC / Public Domain</span></p>
       <div id="gateStepCreate">
         <input id="gateName" type="text" placeholder="Nama kamu" maxlength="32" autocomplete="off">
         <input id="gatePin" type="password" inputmode="numeric" pattern="[0-9]*" placeholder="PIN 4 digit" maxlength="4" autocomplete="off">
@@ -72,7 +59,7 @@
         <button id="gateLoginBtn" class="gate-btn">Masuk</button>
         <button id="gateSwitchBtn" class="gate-link">Bukan kamu? Ganti akun</button>
       </div>
-      <p class="gate-note">Akun tersimpan di HP ini saja (offline). Video dari Wikimedia Commons — lisensi CC/Public Domain.</p>
+      <p class="gate-note-small">Video dari Wikimedia Commons. Akun tersimpan di HP ini saja (offline).</p>
     </div>
   </div>
 

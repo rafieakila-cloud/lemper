@@ -75,7 +75,7 @@ btnLogin.addEventListener('click', () => {
   afterLogin(name);
 });
 gateSwitch.addEventListener('click', () => { setSession(null); gLogin.classList.add('hidden'); gCreate.classList.remove('hidden'); gateName.value=''; gatePin.value=''; });
-document.getElementById('btnAccount').addEventListener('click', () => { if (confirm('Keluar?')) { setSession(null); showGate(); } });
+document.getElementById('btnGateAccount').addEventListener('click', () => { if (confirm('Keluar?')) { setSession(null); showGate(); } });
 
 /* ============ FEED ============ */
 const BLOCKED = /porn|porno|sex(ual)?|nud(i|e|ity)|xxx|hentai|erotic|casino|gamble|gambl|judi|bet(ting)?|rummy|poker|strip|inces|milf|fetish|bondage|fetish|cartoon|animation|animasi|anime/i;
@@ -144,12 +144,14 @@ function appendSlides(from) {
     const slide = document.createElement('section');
     slide.className = 'slide'; slide.dataset.index = i;
     slide.innerHTML = `
-      <video src="${escapeHtml(v.url)}" playsinline muted loop preload="metadata" webkit-playsinline></video>
+      <video src="${escapeHtml(v.url)}" playsinline muted loop preload="auto" webkit-playsinline></video>
       <div class="scrim"></div>
       <div class="caption">
-        <h3>${escapeHtml(v.title)}</h3>
-        <div class="byline">${escapeHtml(v.artist.slice(0, 60))} · <a href="${escapeHtml(v.descUrl)}" target="_blank" rel="noopener license">Commons</a></div>
-        <a class="lic-pill" href="${escapeHtml(v.licenseUrl)}" target="_blank" rel="noopener license">${escapeHtml(v.license)}</a>
+        <div class="cap-box">
+          <h3>${escapeHtml(v.title)}</h3>
+          <div class="byline">${escapeHtml(v.artist.slice(0, 60))} · <a href="${escapeHtml(v.descUrl)}" target="_blank" rel="noopener license">Commons</a></div>
+          <a class="lic-pill" href="${escapeHtml(v.licenseUrl)}" target="_blank" rel="noopener license">${escapeHtml(v.license)}</a>
+        </div>
       </div>`;
     feed.appendChild(slide);
     const vid = slide.querySelector('video');
@@ -178,7 +180,7 @@ function activateSlide(i) {
 }
 
 /* ============ ACTIONS ============ */
-const btnMute = document.getElementById('btnMute');
+
 const btnLike = document.getElementById('btnLike');
 const btnSave = document.getElementById('btnSave');
 const btnShare = document.getElementById('btnShare');
@@ -192,17 +194,6 @@ function updateActionState() {
   likeCount.textContent = likes.has(url) ? '1' : '0';
   saveLabel.textContent = saves.has(url) ? 'Tersimpan' : 'Simpan';
 }
-btnMute.addEventListener('click', () => {
-  unmuted = !unmuted;
-  const slide = feed.children[activeIndex];
-  if (slide) {
-    const v = slide.querySelector('video');
-    v.muted = !unmuted;
-    if (!v.paused) v.play().catch(() => { v.muted = true; showToast('Suara diblokir — coba tap video langsung'); });
-  }
-  showToast(unmuted ? 'Suara: ON (tap video sekiranya browser blok)' : 'Suara: OFF');
-});
-
 btnLike.addEventListener('click', () => {
   const url = currentUrl(); if (!url) return;
   likes.has(url) ? likes.delete(url) : likes.add(url);
@@ -226,11 +217,6 @@ document.addEventListener('keydown', e => {
 });
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
 
-  $$('#cats .chip').forEach(c => c.addEventListener('click', () => {
-    $$('#cats .chip').forEach(x => x.classList.toggle('active', x === c));
-    currentQuery = c.dataset.cat;
-    loadFeed(true);
-  }));
 const u = session();
 if (u && loadAccounts().find(a => a.name === u.name)) { likes = loadSet(ACC_LIKES + u.name); saves = loadSet(ACC_SAVES + u.name); hideGate(); loadFeed(true); }
 else showGate();
